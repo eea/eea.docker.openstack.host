@@ -19,6 +19,6 @@ RUN set -e \
 
 COPY create_dockerhost.sh /
 
-#ENTRYPOINT ["/create_dockerhost.sh"]
-CMD ["sh"]
+ENTRYPOINT ["/create_dockerhost.sh"]
+CMD [""]
 
