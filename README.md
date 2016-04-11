@@ -1,1 +1,56 @@
-# eea.docker.openstack.host
+# Easily and Repeatably Deploy Docker Hosts in OpenStack clouds
+
+This container provides the prerequisites to access the Openstck API. On startup it runs a (configurable) script to deploy a VM that boots from volume, attaches another volume for docker storage (intended for direct lvm driver) and optionaly creates and attaches yet another volume for docker data volumes (intended to be mounted under /var/lib/docker/volumes).
+
+## Supported tags and respective Dockerfile links
+
+none yet
+
+## Base docker image
+
+ - [hub.docker.com](https://hub.docker.com/r/eeacms/os-docker-vm/)
+
+## Source code
+
+  - [github.com](https://github.com/eea/eea.docker.openstack.host/)
+
+## Usage
+
+Prepare the .secret and .cloudaccess files (see examples)
+
+Create a VM named prod06-mil using defaults
+
+    $ docker run --env-file=.secret \
+                 --env-file=.cloudaccess \
+                 -e INSTANCE_NAME=prod06-mil \
+                 --name deploy-host \
+                 eeacms/os-docker-vm
+
+
+## Supported environment variables
+
+* OS_USERNAME - the openstack username
+* OS_PASSWORD - the openstack password
+* KEYNAME     - the name of the keypair to be injected into the running instance (optional)
+
+* OS_AUTH_URL           - AUTH URL for the target openstack cloud
+* OS_TENANT_ID          - ID of the openstack tenant 
+* OS_TENANT_NAME        - name of the openstack tenant 
+* OS_REGION_NAME        - openstack region (optional)
+* OS_VOLUME_API_VERSION - API version for cinder. Defaults to 1
+
+* IMAGE_NAME                  - glance image to be used. defaults to EEA-docker-generic-v2.1 (should be already present in glance)
+* INSTANCE_NAME=''            - provide a name for the new instance. A UUID will be generated if this is missing
+* INSTANCE_FLAVOR             - name of the flavor to be used. defaults to a flavor named e2standard.x5 (should be already defined)
+* INSTANCE_ROOT_SIZE          - self explanatory. defaults to 10 and is in GBytes
+* INSTANCE_ROOT_PERSISTENT    - can be "true" or "false" (default). It sets the instance to delete all related volumes on termination
+* INSTANCE_DOCKERSTORAGE_SIZE - self explanatory. defaults to 32 and is in GBytes
+* INSTANCE_DOCKER_VOLUME      - can be "true" (default) or "false". Creates the optional volume to hold docker data volumes
+* INSTANCE_DOCKER_VOLUME_SIZE - self explanatory. defaults to 10 and is in GBytes
+
+
+## Copyright and license
+
+The Initial Owner of the Original Code is European Environment Agency (EEA).
+All Rights Reserved.
+
