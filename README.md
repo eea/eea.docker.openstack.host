@@ -16,13 +16,14 @@ none yet
 
 ## Usage
 
-Prepare the .secret and .cloudaccess files (see examples)
+Prepare the [.secret](https://github.com/eea/eea.docker.openstack.host/blob/master/.secret.example) and [.cloudaccess](https://github.com/eea/eea.docker.openstack.host/blob/master/.cloudaccess.example) files (see linked examples)
 
 Create a VM named prod06-mil using defaults
 
-    $ docker run --env-file=.secret \
+    $ docker run --rm=true \
+                 --env-file=.secret \
                  --env-file=.cloudaccess \
-                 -e INSTANCE_NAME=prod06-mil \
+                 -e INSTANCE_NAME=prodXX-mil \
                  --name deploy-host \
                  eeacms/os-docker-vm
 
@@ -40,7 +41,7 @@ Create a VM named prod06-mil using defaults
 * OS_VOLUME_API_VERSION - API version for cinder. Defaults to 1
 
 * IMAGE_NAME                  - glance image to be used. defaults to EEA-docker-generic-v2.1 (should be already present in glance)
-* INSTANCE_NAME=''            - provide a name for the new instance. A UUID will be generated if this is missing
+* INSTANCE_NAME               - provide a name for the new instance. A UUID will be generated if this is missing
 * INSTANCE_FLAVOR             - name of the flavor to be used. defaults to a flavor named e2standard.x5 (should be already defined)
 * INSTANCE_ROOT_SIZE          - self explanatory. defaults to 10 and is in GBytes
 * INSTANCE_ROOT_PERSISTENT    - can be "true" or "false" (default). It sets the instance to delete all related volumes on termination
