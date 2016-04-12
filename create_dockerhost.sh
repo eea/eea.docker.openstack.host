@@ -11,7 +11,7 @@ image_id="$(glance --os-image-api-version 1 image-list --name  $IMAGE_NAME | awk
 
 if [ x"$KEYNAME" != 'x' ]; then injectKEYcmd="--key-name"; else injectKEYcmd=''; fi
 if [ x"$OS_NETWORK_ID" != 'x' ]; then injectNETcmd="--nic"; injectNetID="net-id="; else injectNETcmd=''; injectNetID=''; fi 
-if [ x"OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone"; else injectAVLcmd=''; fi
+if [ x"$OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone"; else injectAVLcmd=''; fi
 
 #########################
 #Root Volume creation
