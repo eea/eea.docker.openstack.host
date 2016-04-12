@@ -88,13 +88,11 @@ flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"' \|/ {print $2}')"
 if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exit 1; fi
 
 echo "Creating Instance "$INSTANCE_NAME
-echo nova boot --flavor "$flavor_id" "$injectNETcmd" "$injectNetID""$OS_NETWORK_ID" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 --block-device source=volume,id="$dvvol_id",dest=volume,size="$INSTANCE_DOCKER_VOLUME_SIZE",shutdown=remove,bootindex=2 "$injectAVLcmd" "$OS_AVAILABILITY_ZONE" "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME"
+if [ $INSTANCE_DOCKER_VOLUME == true ]; then injectVOL2cmd="--block-device source=volume,id=$dvvol_id,dest=volume,size=$INSTANCE_DOCKER_VOLUME_SIZE,shutdown=remove,bootindex=2"; else  injectVOL2cmd=''; fi
+                                                                                                                                                                                                                   
+cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volu
+instance_id="$(eval $cmd)"  
 
-if [ $INSTANCE_DOCKER_VOLUME = true ]; then
-   instance_id=$(nova boot --flavor "$flavor_id" "$injectNETcmd" "$injectNetID""$OS_NETWORK_ID" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 --block-device source=volume,id="$dvvol_id",dest=volume,size="$INSTANCE_DOCKER_VOLUME_SIZE",shutdown=remove,bootindex=2 "$injectAVLcmd" "$OS_AVAILABILITY_ZONE" "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME" | awk '/\|[ ]+id[ ]+\|/ {print $4}')
-else
-   instance_id=$(nova boot --flavor "$flavor_id" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME" | awk '/\|[ ]+id[ ]+\|/ {print $4}')
-fi
 i=20; instance_status=''
 while [ $((--i)) -gt 0 -a x$instance_status != 'xactive' ]; do
    instance_status="$(nova show $instance_id | awk '/vm_state/ {print $4}')"
