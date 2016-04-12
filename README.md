@@ -18,7 +18,7 @@ none yet
 
 Prepare the [.secret](https://github.com/eea/eea.docker.openstack.host/blob/master/.secret.example) and [.cloudaccess](https://github.com/eea/eea.docker.openstack.host/blob/master/.cloudaccess.example) files (see linked examples)
 
-Create a VM named prod06-mil using defaults
+Create a VM named prodXX-mil using defaults
 
     $ docker run --rm=true \
                  --env-file=.secret \
@@ -38,7 +38,9 @@ Create a VM named prod06-mil using defaults
 * OS_TENANT_ID          - ID of the openstack tenant 
 * OS_TENANT_NAME        - name of the openstack tenant 
 * OS_REGION_NAME        - openstack region (optional)
+* OS_NETWORK_ID		- network ID within the tenant (optional if there is only one network available)
 * OS_VOLUME_API_VERSION - API version for cinder. Defaults to 1
+* OS_AVAILABILITY_ZONE  - openstack availability zone within the tenant (optional if the provider has only one zone or it uses same default for all services)
 
 * IMAGE_NAME                  - glance image to be used. defaults to EEA-docker-generic-v2.1 (should be already present in glance)
 * INSTANCE_NAME               - provide a name for the new instance. A UUID will be generated if this is missing
