@@ -1,12 +1,17 @@
 #!/bin/ash
 
-
+if [ "$#" -gt 1 ]; then
+	echo "$#";
+	exec /bin/ash;
+fi
 
 if [ x$INSTANCE_NAME = 'x' ]; then INSTANCE_NAME="$(python -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')"; fi
 
 image_id="$(glance --os-image-api-version 1 image-list --name  $IMAGE_NAME | awk '/'$IMAGE_NAME'/ {print $2}')"
 
-if [ x'$KEYNAME' != 'x' ]; then injectKEYcmd="--key-name"; else injectKEYcmd=''; fi
+if [ x"$KEYNAME" != 'x' ]; then injectKEYcmd="--key-name"; else injectKEYcmd=''; fi
+if [ x"$OS_NETWORK_ID" != 'x' ]; then injectNETcmd="--nic"; injectNetID="net-id="; else injectNETcmd=''; injectNetID=''; fi 
+if [ x"OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone"; else injectAVLcmd=''; fi
 
 #########################
 #Root Volume creation
@@ -83,9 +88,10 @@ flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"' \|/ {print $2}')"
 if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exit 1; fi
 
 echo "Creating Instance "$INSTANCE_NAME
+echo nova boot --flavor "$flavor_id" "$injectNETcmd" "$injectNetID""$OS_NETWORK_ID" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 --block-device source=volume,id="$dvvol_id",dest=volume,size="$INSTANCE_DOCKER_VOLUME_SIZE",shutdown=remove,bootindex=2 "$injectAVLcmd" "$OS_AVAILABILITY_ZONE" "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME"
 
 if [ $INSTANCE_DOCKER_VOLUME = true ]; then
-   instance_id=$(nova boot --flavor "$flavor_id" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 --block-device source=volume,id="$dvvol_id",dest=volume,size="$INSTANCE_DOCKER_VOLUME_SIZE",shutdown=remove,bootindex=2 "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME" | awk '/\|[ ]+id[ ]+\|/ {print $4}')
+   instance_id=$(nova boot --flavor "$flavor_id" "$injectNETcmd" "$injectNetID""$OS_NETWORK_ID" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 --block-device source=volume,id="$dvvol_id",dest=volume,size="$INSTANCE_DOCKER_VOLUME_SIZE",shutdown=remove,bootindex=2 "$injectAVLcmd" "$OS_AVAILABILITY_ZONE" "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME" | awk '/\|[ ]+id[ ]+\|/ {print $4}')
 else
    instance_id=$(nova boot --flavor "$flavor_id" --block-device source=volume,id="$rootvol_id",dest=volume,size="$INSTANCE_ROOT_SIZE",shutdown=remove,bootindex=0 --block-device source=volume,id="$dsvol_id",dest=volume,size="$INSTANCE_DOCKERSTORAGE_SIZE",shutdown=remove,bootindex=1 "$injectKEYcmd" "$KEYNAME" "$INSTANCE_NAME" | awk '/\|[ ]+id[ ]+\|/ {print $4}')
 fi
