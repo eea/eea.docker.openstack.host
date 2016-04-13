@@ -23,7 +23,7 @@ echo "Creating Root volume "$INSTANCE_NAME-Root
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
    vol_status="$(cinder show $rootvol_id | awk '/\|[ ]+status/ {print $4}')"
    printf "\rWaiting to became available. Will timeout in %s" $((i*10))s 
-   sleep 10s
+   if [ x$vol_status != 'xavailable' ]; then sleep 10s; fi
 done
 echo
 if [ $i -eq 0 ]; then
@@ -44,7 +44,7 @@ i=20; vol_status=''
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
    vol_status="$(cinder show $dsvol_id | awk '/\|[ ]+status/ {print $4}')"
    printf "\rWaiting to became available. Will timeout in %s" $((i*10))s
-   sleep 10s
+   if [ x$vol_status != 'xavailable' ]; then sleep 10s; fi
 done
 echo
 if [ $i -eq 0 ]; then
@@ -66,7 +66,7 @@ if [ $INSTANCE_DOCKER_VOLUME = true ]; then
   while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
      vol_status="$(cinder show $dvvol_id | awk '/\|[ ]+status/ {print $4}')"
      printf "\rWaiting to became available. Will timeout in %s" $((i*10))s
-     sleep 10s
+     if [ x$vol_status != 'xavailable' ]; then sleep 10s; fi
   done
   echo
   if [ $i -eq 0 ]; then
@@ -90,8 +90,7 @@ if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exi
 echo "Creating Instance "$INSTANCE_NAME
 if [ $INSTANCE_DOCKER_VOLUME == true ]; then injectVOL2cmd="--block-device source=volume,id=$dvvol_id,dest=volume,size=$INSTANCE_DOCKER_VOLUME_SIZE,shutdown=remove,bootindex=2"; else  injectVOL2cmd=''; fi
                                                                                                                                                                                                                    
-cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volu
-"nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEYcmd $KEYNAME $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print $4}'"
+cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEYcmd $KEYNAME $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print $4}'"
 instance_id="$(eval $cmd)"  
 
 i=20; instance_status=''
