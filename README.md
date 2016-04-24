@@ -48,7 +48,9 @@ Create a VM named prodXX-mil using defaults
 * INSTANCE_ROOT_SIZE          - self explanatory. defaults to 10 and is in GBytes
 * INSTANCE_ROOT_PERSISTENT    - can be "true" or "false" (default). It sets the instance to delete all related volumes on termination
 * INSTANCE_DOCKERSTORAGE_SIZE - self explanatory. defaults to 32 and is in GBytes
+* $INSTANCE_DOCKERSTORAGE_TYPE - openstack volume type for docker storage volume. defaults to "standard"
 * INSTANCE_DOCKER_VOLUME      - can be "true" (default) or "false". Creates the optional volume to hold docker data volumes
+* $INSTANCE_DOCKER_VOLUME_TYPE - openstack volume type for docker volumes volume. defaults to "standard"
 * INSTANCE_DOCKER_VOLUME_SIZE - self explanatory. defaults to 10 and is in GBytes
 
 
