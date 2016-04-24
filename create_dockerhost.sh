@@ -17,7 +17,7 @@ if [ x"$OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone";
 #Root Volume creation
 #########################
 
-rootvol_id="$(cinder create --image-id $image_id --display-name $INSTANCE_NAME-Root $INSTANCE_ROOT_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+rootvol_id="$(cinder create --image-id $image_id --display-name $INSTANCE_NAME-Root --display-description 'Boot Volume based on '$IMAGE_NAME' image' $INSTANCE_ROOT_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
 i=20; vol_status=''
 echo "Creating Root volume "$INSTANCE_NAME-Root
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
@@ -38,7 +38,9 @@ fi
 #Docker-Storage Volume creation
 ##############################
 
-dsvol_id="$(cinder create --volume-type $INSTANCE_DOCKERSTORAGE_TYPE --display-name $INSTANCE_NAME-DockerStorage $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+if [ x"$INSTANCE_DOCKERSTORAGE_TYPE" != 'x' ]; then injectVTYPEcmd="--volume-type"; else injectVTYPEcmd=''; fi
+
+dsvol_id="$(cinder create $njectVTYPEcmd $INSTANCE_DOCKERSTORAGE_TYPE --display-name $INSTANCE_NAME-DockerStorage --display-description 'Docker storage' $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
 echo "Creating Docker Storage volume "$INSTANCE_NAME-DockerStorage
 i=20; vol_status=''
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
@@ -59,8 +61,10 @@ fi
 #Optional Docker-Volumes Volume creation
 #######################################
 
+if [ x"$INSTANCE_DOCKER_VOLUME_TYPE" != 'x' ]; then injectVTYPEcmd="--volume-type"; else injectVTYPEcmd=''; fi
+
 if [ $INSTANCE_DOCKER_VOLUME = true ]; then 
-  dvvol_id="$(cinder create --volume-type $INSTANCE_DOCKER_VOLUME_TYPE --display-name $INSTANCE_NAME-DockerVolumes $INSTANCE_DOCKER_VOLUME_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+  dvvol_id="$(cinder create $injectVTYPEcmd $INSTANCE_DOCKER_VOLUME_TYPE --display-name $INSTANCE_NAME-DockerVolumes --display-description 'Docker volumes' $INSTANCE_DOCKER_VOLUME_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
   echo "Creating Docker Volumes volume "$INSTANCE_NAME-DockerVolumes
   i=20; vol_status=''
   while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
