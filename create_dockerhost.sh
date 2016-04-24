@@ -38,7 +38,7 @@ fi
 #Docker-Storage Volume creation
 ##############################
 
-dsvol_id="$(cinder create --display-name $INSTANCE_NAME-DockerStorage $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+dsvol_id="$(cinder create --volume-type $INSTANCE_DOCKERSTORAGE_TYPE --display-name $INSTANCE_NAME-DockerStorage $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
 echo "Creating Docker Storage volume "$INSTANCE_NAME-DockerStorage
 i=20; vol_status=''
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
@@ -60,7 +60,7 @@ fi
 #######################################
 
 if [ $INSTANCE_DOCKER_VOLUME = true ]; then 
-  dvvol_id="$(cinder create --display-name $INSTANCE_NAME-DockerVolumes $INSTANCE_DOCKER_VOLUME_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+  dvvol_id="$(cinder create --volume-type $INSTANCE_DOCKER_VOLUME_TYPE --display-name $INSTANCE_NAME-DockerVolumes $INSTANCE_DOCKER_VOLUME_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
   echo "Creating Docker Volumes volume "$INSTANCE_NAME-DockerVolumes
   i=20; vol_status=''
   while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
