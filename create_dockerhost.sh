@@ -88,7 +88,7 @@ fi
 ##############################
 
 printf "retreving flavor ID for %s ..." "$INSTANCE_FLAVOR"
-flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"' \|/ {print $2}')"
+flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"'[ ]+\|/ {print $2}')"
 if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exit 1; fi
 
 echo "Creating Instance "$INSTANCE_NAME
