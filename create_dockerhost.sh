@@ -9,7 +9,7 @@ if [ x$INSTANCE_NAME = 'x' ]; then INSTANCE_NAME="$(python -c 'import sys,uuid; 
 
 image_id="$(glance --os-image-api-version 1 image-list --name  $IMAGE_NAME | awk '/'$IMAGE_NAME'/ {print $2}')"
 
-if [ x"$KEYNAME" != 'x' ]; then injectKEYcmd="--key-name"; else injectKEYcmd=''; fi
+if [ x"$KEYNAME" != 'x' ]; then injectKEY="--key-name '$KEYNAME'"; else injectKEY=''; fi
 if [ x"$OS_NETWORK_ID" != 'x' ]; then injectNETcmd="--nic"; injectNetID="net-id="; else injectNETcmd=''; injectNetID=''; fi 
 if [ x"$OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone"; else injectAVLcmd=''; fi
 
@@ -90,7 +90,7 @@ if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exi
 echo "Creating Instance "$INSTANCE_NAME
 if [ $INSTANCE_DOCKER_VOLUME == true ]; then injectVOL2cmd="--block-device source=volume,id=$dvvol_id,dest=volume,size=$INSTANCE_DOCKER_VOLUME_SIZE,shutdown=remove,bootindex=2"; else  injectVOL2cmd=''; fi
                                                                                                                                                                                                                    
-cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEYcmd '$KEYNAME' $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print \$4}'"
+cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEY $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print \$4}'"
 instance_id="$(eval $cmd)"  
 
 i=20; instance_status=''
