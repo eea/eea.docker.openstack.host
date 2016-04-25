@@ -40,7 +40,7 @@ fi
 
 if [ x"$INSTANCE_DOCKERSTORAGE_TYPE" != 'x' ]; then injectVTYPEcmd="--volume-type"; else injectVTYPEcmd=''; fi
 
-dsvol_id="$(cinder create $njectVTYPEcmd $INSTANCE_DOCKERSTORAGE_TYPE --display-name $INSTANCE_NAME-DockerStorage --display-description 'Docker storage' $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
+dsvol_id="$(cinder create $injectVTYPEcmd $INSTANCE_DOCKERSTORAGE_TYPE --display-name $INSTANCE_NAME-DockerStorage --display-description 'Docker storage' $INSTANCE_DOCKERSTORAGE_SIZE | awk '/\|[ ]+id[ ]+\|/ {print $4}')"
 echo "Creating Docker Storage volume "$INSTANCE_NAME-DockerStorage
 i=20; vol_status=''
 while [ $((--i)) -gt 0 -a x$vol_status != 'xavailable' ]; do
