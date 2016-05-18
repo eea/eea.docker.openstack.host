@@ -53,6 +53,10 @@ Create a VM named prodXX-mil using defaults
 * INSTANCE_DOCKER_VOLUME_TYPE - openstack volume type for docker volumes volume. defaults to "standard"
 * INSTANCE_DOCKER_VOLUME_SIZE - self explanatory. defaults to 10 and is in GBytes
 
+* INSTANCE_DOMAIN 	      - a name for the private openstack domain. If this is set then an atempt will be made to register the name of the new VM and to configure domain search and nameservers for the local resolver. If this is set the next 3 should also be set. 
+* DNS_IP_A		      - the authoritative IP of a resolver for the above domain, capable of DDNS updates
+* DNS_IP_B		      - the IP of a resolver for the above domain
+* DNS_KEY		      - the "secret" key used by DDNS protocol to allow registration
 
 ## Copyright and license
 

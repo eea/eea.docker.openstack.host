@@ -20,6 +20,7 @@ RUN set -e \
 	&& rm -f /var/cache/apk/*
 
 COPY create_dockerhost.sh /
+COPY user_data.file /
 
 ENTRYPOINT ["/create_dockerhost.sh"]
 CMD [""]

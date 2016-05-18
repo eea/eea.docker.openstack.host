@@ -29,8 +29,6 @@ if [ x$flavor_id == 'x' ]; then
 	 exit 1
 fi
 
-
-
 if [ x"$KEYNAME" != 'x' ]; then injectKEY="--key-name '$KEYNAME'"; else injectKEY=''; fi
 if [ x"$OS_NETWORK_ID" != 'x' ]; then injectNETcmd="--nic"; injectNetID="net-id="; else injectNETcmd=''; injectNetID=''; fi 
 if [ x"$OS_AVAILABILITY_ZONE" != 'x' ]; then injectAVLcmd="--availability-zone"; else injectAVLcmd=''; fi
@@ -106,13 +104,23 @@ else
 fi
 
 ##############################
+#Prepare first boot script
+##############################
+sed -i "s/###REPLACE-ME-NAME###/$INSTANCE_NAME/" user_data.file
+sed -i "s/###REPLACE-ME-DOMAIN###/$INSTANCE_DOMAIN/" user_data.file
+sed -i "s/###REPLACE-ME-DNS-A###/$DNS_IP_A/" user_data.file
+sed -i "s/###REPLACE-ME-DNS-B###/$DNS_IP_B/" user_data.file
+sed -i "s/###REPLACE-ME-KEY###/$DNS_KEY/" user_data.file
+
+
+##############################
 #Instance creation and boot
 ##############################
 
 echo "Creating Instance "$INSTANCE_NAME
 if [ $INSTANCE_DOCKER_VOLUME == true ]; then injectVOL2cmd="--block-device source=volume,id=$dvvol_id,dest=volume,size=$INSTANCE_DOCKER_VOLUME_SIZE,shutdown=remove,bootindex=2"; else  injectVOL2cmd=''; fi
                                                                                                                                                                                                                    
-cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEY $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print \$4}'"
+cmd="nova boot --flavor $flavor_id $injectNETcmd $injectNetID$OS_NETWORK_ID --block-device source=volume,id=$rootvol_id,dest=volume,size=$INSTANCE_ROOT_SIZE,shutdown=remove,bootindex=0 --block-device source=volume,id=$dsvol_id,dest=volume,size=$INSTANCE_DOCKERSTORAGE_SIZE,shutdown=remove,bootindex=1 $injectVOL2cmd $injectAVLcmd $OS_AVAILABILITY_ZONE $injectKEY --user-data user_data.file $INSTANCE_NAME | awk '/\|[ ]+id[ ]+\|/ {print \$4}'"
 instance_id="$(eval $cmd)"  
 
 i=40; instance_status=''

@@ -17,6 +17,7 @@ echo "If we have /dev/vdb (we should!) we need to use it for docker storage:"
 if [ -b /dev/vdb ]; then
 	#leave a couple of percent for extra metadata if needed later
         sed -i 's/DATA_SIZE=99%FREE/DATA_SIZE=97%FREE/' /etc/sysconfig/docker-storage-setup
+	export LVM_SUPPRESS_FD_WARNINGS=true
 	docker-storage-setup
         if [ -e /dev/mapper/vg_docker-docker--pool ]; then
                 echo "vg_docker was created"
@@ -30,6 +31,43 @@ else
 fi
 
 echo "We should be ready to run containers!"
+
+
+myName=###REPLACE-ME-NAME###
+
+#########################
+#Hostname
+#########################
+echo $myName.pecs.eea > /etc/hostname
+hostname $myName.pecs.eea
+
+#########################
+#DNS update
+#########################
+
+if [ x'###REPLACE-ME-DNS-A###' != 'x' ]; then
+  myIP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
+  myKey=###REPLACE-ME-KEY###
+  myDNSa=###REPLACE-ME-DNS-A###
+  myDNSb=###REPLACE-ME-DNS-B###
+  myDomain=###REPLACE-ME-DOMAIN###
+
+  nsupdate -v -y clients-key:$myKey <<-EOF
+	server $myDNSa
+	zone $myDomain
+	update add $myName.$myDomain 600 A $myIP
+	send
+	EOF
+
+	cat <<-EOF
+	interface "eth0" {
+           send host-name "$myName.$myDomain";
+           supersede domain-search "$myDomain";
+           prepend domain-name-servers $myDNSa, $myDNSb;
+	}
+	EOF
+	> /etc/dhcp/dhclient.conf
+fi
 
 exit 0
 
