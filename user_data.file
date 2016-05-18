@@ -1,0 +1,35 @@
+#!/bin/bash
+# This script will run at first boot via Openstack using the user_data and cloud-init. 
+# Author: Adrian Dascalu; License: GNU GPLv3
+
+printf "\033c" #clear screen
+
+echo "If we have /dev/vdc we need to set it up:"
+if [ -b /dev/vdc ]; then
+	fsID=$(uuidgen)
+	mkfs.ext4 -m0 -U $fsID /dev/vdc
+	printf "\nUUID=%s\t/var/lib/docker/volumes\text4\tdefaults\t0 0" $fsID >> /etc/fstab
+	mkdir -p --context=system_u:object_r:docker_var_lib_t:s0 /var/lib/docker/volumes
+	mount -a
+fi
+
+echo "If we have /dev/vdb (we should!) we need to use it for docker storage:"
+if [ -b /dev/vdb ]; then
+	#leave a couple of percent for extra metadata if needed later
+        sed -i 's/DATA_SIZE=99%FREE/DATA_SIZE=97%FREE/' /etc/sysconfig/docker-storage-setup
+	docker-storage-setup
+        if [ -e /dev/mapper/vg_docker-docker--pool ]; then
+                echo "vg_docker was created"
+                systemctl start docker && systemctl enable docker
+        else
+                echo "vg_docker wasn't created, manual intervention required" 
+        fi
+else
+ echo "Docker storage volume is not attached to server under /dev/vdb"
+ exit 1
+fi
+
+echo "We should be ready to run containers!"
+
+exit 0
+
