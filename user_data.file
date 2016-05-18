@@ -59,14 +59,13 @@ if [ x'###REPLACE-ME-DNS-A###' != 'x' ]; then
 	send
 	EOF
 
-	cat <<-EOF
+	cat > /etc/dhcp/dhclient.conf <<-EOF
 	interface "eth0" {
            send host-name "$myName.$myDomain";
            supersede domain-search "$myDomain";
            prepend domain-name-servers $myDNSa, $myDNSb;
 	}
 	EOF
-	> /etc/dhcp/dhclient.conf
 fi
 
 exit 0
