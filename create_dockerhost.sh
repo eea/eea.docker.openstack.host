@@ -5,9 +5,31 @@ if [ "$#" -gt 1 ]; then
 	exec /bin/ash;
 fi
 
+##########################
+#Sanity checks
+##########################
+
 if [ x$INSTANCE_NAME = 'x' ]; then INSTANCE_NAME="$(python -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')"; fi
 
+nova list | grep $INSTANCE_NAME
+if [ $? == 0 ]; then 
+  echo "An instance named $INSTANCE_NAME already exists or not enough priviledge (see the above line for details). Exiting ..."
+  exit 1
+fi
+
 image_id="$(glance --os-image-api-version 1 image-list --name  $IMAGE_NAME | awk '/'$IMAGE_NAME'/ {print $2}')"
+if [ x$image_id == 'x' ]; then
+	echo "Could not find an image by the name $IMAGE_NAME. Exiting ..."
+	exit 1
+fi
+
+flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"'[ ]+\|/ {print $2}')"
+if [ x$flavor_id == 'x' ]; then
+	 echo "Coud not find a flavour by the name $INSTANCE_FLAVOR. Exiting ..."
+	 exit 1
+fi
+
+
 
 if [ x"$KEYNAME" != 'x' ]; then injectKEY="--key-name '$KEYNAME'"; else injectKEY=''; fi
 if [ x"$OS_NETWORK_ID" != 'x' ]; then injectNETcmd="--nic"; injectNetID="net-id="; else injectNETcmd=''; injectNetID=''; fi 
@@ -86,10 +108,6 @@ fi
 ##############################
 #Instance creation and boot
 ##############################
-
-printf "retreving flavor ID for %s ..." "$INSTANCE_FLAVOR"
-flavor_id="$(nova flavor-list |  awk '/\| '"$INSTANCE_FLAVOR"'[ ]+\|/ {print $2}')"
-if [ x$flavor_id != 'x' ]; then echo $flavor_id; else echo "Not existent?!"; exit 1; fi
 
 echo "Creating Instance "$INSTANCE_NAME
 if [ $INSTANCE_DOCKER_VOLUME == true ]; then injectVOL2cmd="--block-device source=volume,id=$dvvol_id,dest=volume,size=$INSTANCE_DOCKER_VOLUME_SIZE,shutdown=remove,bootindex=2"; else  injectVOL2cmd=''; fi
