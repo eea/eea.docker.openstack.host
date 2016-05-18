@@ -34,23 +34,25 @@ echo "We should be ready to run containers!"
 
 
 myName=###REPLACE-ME-NAME###
+myDomain=###REPLACE-ME-DOMAIN###
 
 #########################
 #Hostname
 #########################
-echo $myName.pecs.eea > /etc/hostname
-hostname $myName.pecs.eea
+echo $myName > /etc/hostname
+hostname $myName
 
 #########################
-#DNS update
+#DNS update and FQDN
 #########################
 
-if [ x'###REPLACE-ME-DNS-A###' != 'x' ]; then
+if [ x"myDomain" != 'x' ]; then
+  echo $myName.$myDomain > /etc/hostname
+  hostname $myName.$myDomain
   myIP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
   myKey=###REPLACE-ME-KEY###
   myDNSa=###REPLACE-ME-DNS-A###
   myDNSb=###REPLACE-ME-DNS-B###
-  myDomain=###REPLACE-ME-DOMAIN###
 
   nsupdate -v -y clients-key:$myKey <<-EOF
 	server $myDNSa
@@ -66,6 +68,8 @@ if [ x'###REPLACE-ME-DNS-A###' != 'x' ]; then
            prepend domain-name-servers $myDNSa, $myDNSb;
 	}
 	EOF
+  #apply settings imediately. use "service" for backwards compatibility
+  service network restart
 fi
 
 exit 0
