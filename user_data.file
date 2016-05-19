@@ -42,32 +42,36 @@ myDomain=###REPLACE-ME-DOMAIN###
 echo $myName > /etc/hostname
 hostname $myName
 
+sed -i "s/hostname.\+/$myName/" /etc/motd 
+
 #########################
 #DNS update and FQDN
 #########################
 
-if [ x"myDomain" != 'x' ]; then
-  echo $myName.$myDomain > /etc/hostname
-  hostname $myName.$myDomain
-  myIP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
-  myKey=###REPLACE-ME-KEY###
-  myDNSa=###REPLACE-ME-DNS-A###
-  myDNSb=###REPLACE-ME-DNS-B###
+if [ x"$myDomain" != 'x' ]; then
+	echo $myName.$myDomain > /etc/hostname
+	hostname $myName.$myDomain
+	myIP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
+	myKey=###REPLACE-ME-KEY###
+	myDNSa=###REPLACE-ME-DNS-A###
+	myDNSb=###REPLACE-ME-DNS-B###
 
-  nsupdate -v -y clients-key:$myKey <<-EOF
-	server $myDNSa
-	zone $myDomain
-	update add $myName.$myDomain 600 A $myIP
-	send
+  	nsupdate -v -y clients-key:$myKey <<-EOF
+		server $myDNSa
+		zone $myDomain
+		update add $myName.$myDomain 600 A $myIP
+		send
 	EOF
 
 	cat > /etc/dhcp/dhclient.conf <<-EOF
-	interface "eth0" {
-           send host-name "$myName.$myDomain";
-           supersede domain-search "$myDomain";
-           prepend domain-name-servers $myDNSa, $myDNSb;
-	}
+		interface "eth0" {
+           		send host-name "$myName.$myDomain";
+           		supersede domain-search "$myDomain";
+           		prepend domain-name-servers $myDNSa, $myDNSb;
+		}
 	EOF
+
+	sed -i "s/hostname.\+/$myName.$myDomain/" /etc/motd 
   #apply settings imediately. use "service" for backwards compatibility
   service network restart
 fi
