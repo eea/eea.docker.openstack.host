@@ -59,7 +59,8 @@ if [ x"$myDomain" != 'x' ]; then
   	nsupdate -v -y clients-key:$myKey <<-EOF
 		server $myDNSa
 		zone $myDomain
-		update add $myName.$myDomain 600 A $myIP
+		update delete $myName.$myDomain A
+		update add $myName.$myDomain 60 A $myIP
 		send
 	EOF
 
@@ -71,10 +72,11 @@ if [ x"$myDomain" != 'x' ]; then
 		}
 	EOF
 
-	sed -i "s/hostname.\+/$myName.$myDomain/" /etc/motd 
+	sed -i "s/$myName/$myName.$myDomain/" /etc/motd 
+fi
   #apply settings imediately. use "service" for backwards compatibility
   service network restart
-fi
+
 
 exit 0
 
