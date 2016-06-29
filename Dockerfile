@@ -14,7 +14,7 @@ ENV IMAGE_NAME=EEA-docker-generic-v2.1 \
 	
 
 RUN set -e \
-	&& apk add --no-cache --update build-base linux-headers \
+	&& apk add --no-cache --update build-base linux-headers ca-certificates \
 	&& pip install python-openstackclient==2.3.0 \
 	&& apk del --purge build-base linux-headers \
 	&& rm -f /var/cache/apk/*
