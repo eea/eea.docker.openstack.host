@@ -25,7 +25,7 @@ Create a VM named prodXX-mil using defaults
                  --env-file=.cloudaccess \
                  -e INSTANCE_NAME=prodXX-mil \
                  --name deploy-host \
-                 eeacms/os-docker-vm
+                 eeacms/os-docker-vm:v1.0
 
 
 ## Supported environment variables
