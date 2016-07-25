@@ -21,7 +21,7 @@ if [ -b /dev/vdb ]; then
 	docker-storage-setup
         if [ -e /dev/mapper/vg_docker-docker--pool ]; then
                 echo "vg_docker was created"
-		sed -i '/DOCKER_STORAGE_OPTIONS/ s/$/ --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true --log-opt max-size=40m --log-opt max-file=10' /etc/sysconfig/docker-storage		
+		sed -i '/DOCKER/ s/$/ --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true --log-opt max-size=40m --log-opt max-file=10/' /etc/sysconfig/docker-storage	
                 systemctl start docker && systemctl enable docker
         else
                 echo "vg_docker wasn't created, manual intervention required" 
