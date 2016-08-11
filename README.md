@@ -42,8 +42,12 @@ Create a VM named prodXX-mil using defaults
 * OS_VOLUME_API_VERSION - API version for cinder. Defaults to 1
 * OS_AVAILABILITY_ZONE  - openstack availability zone within the tenant (optional if the provider has only one zone or it uses same default for all services)
 
+* TIMEOUT		- how long shall we wait for volume or instance creation to succeed (in 10s of seconds)
+
 * IMAGE_NAME                  - glance image to be used. defaults to EEA-docker-generic-v2.1 (should be already present in glance)
-* INSTANCE_NAME               - provide a name for the new instance. A UUID will be generated if this is missing
+
+* INSTANCE_NAME               - provide a name for the new instance. It is considered a prefix if it ends with "-" and consecutive numbers are added to the name. A UUID will be generated if this is missing. 
+
 * INSTANCE_FLAVOR             - name of the flavor to be used. defaults to a flavor named e2standard.x5 (should be already defined)
 * INSTANCE_ROOT_SIZE          - self explanatory. defaults to 10 and is in GBytes
 * INSTANCE_ROOT_PERSISTENT    - can be "true" or "false" (default). It sets the instance to delete all related volumes on termination
