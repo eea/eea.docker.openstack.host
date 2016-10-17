@@ -39,6 +39,7 @@ if [ $? == 0 ]; then
 	if  [ $? == 1 ] ; then
 		lastno=0
 	fi
+	lastno=$(echo $lastno | sed 's/^0*//')
        	nextno=`printf "%02d" $((lastno+1))`
 	INSTANCE_NAME=$INSTANCE_NAME$nextno
 fi
