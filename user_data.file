@@ -22,7 +22,7 @@ if [ -b /dev/vdb ]; then
         if [ -e /dev/mapper/vg_docker-docker--pool ]; then
                 echo "vg_docker was created"
 		sed -i '/DOCKER/ s/$/ --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true --log-opt max-size=40m --log-opt max-file=10/' /etc/sysconfig/docker-storage	
-                systemctl start docker && systemctl enable docker
+		systemctl start docker && systemctl enable docker
         else
                 echo "vg_docker wasn't created, manual intervention required" 
         fi
@@ -38,15 +38,14 @@ myName=###REPLACE-ME-NAME###
 myDomain=###REPLACE-ME-DOMAIN###
 
 #########################
-#Hostname
+#Hostname 
 #########################
 echo $myName > /etc/hostname
 hostname $myName
 
 sed -i "s/hostname.\+/$myName/" /etc/motd 
-
 #########################
-#DNS update and FQDN
+#DNS update, FQDN & Puppet
 #########################
 
 if [ x"$myDomain" != 'x' ]; then
@@ -73,11 +72,11 @@ if [ x"$myDomain" != 'x' ]; then
 		}
 	EOF
 
-	sed -i "s/$myName/$myName.$myDomain/" /etc/motd 
+	sed -i "s/$myName/$myName.$myDomain/" /etc/motd
 fi
   #apply settings imediately. use "service" for backwards compatibility
   service network restart
-
+  systemctl start puppet && systemctl enable puppet
 
 exit 0
 

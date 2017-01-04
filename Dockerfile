@@ -1,7 +1,7 @@
 FROM python:2.7-alpine
 MAINTAINER "EEA IDM-1" http://www.eea.europa.eu
 
-ENV IMAGE_NAME=EEA-docker-generic-v2.2 \
+ENV IMAGE_NAME=EEA-centos7-generic-v2 \
     INSTANCE_NAME='' \
     INSTANCE_FLAVOR='e2standard.x5' \
     INSTANCE_ROOT_SIZE=10 \
